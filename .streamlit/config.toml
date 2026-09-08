@@ -1,0 +1,10 @@
+# MedCheck AI — 표현 계층 설정
+# 데모 환경(OS 다크모드, 프로젝터)에 관계없이 동일한 화면을 보장하기 위해
+# 라이트 테마를 고정합니다. 앱 로직에는 영향을 주지 않습니다.
+
+[theme]
+base = "light"
+primaryColor = "#137BC1"
+backgroundColor = "#F6F7F9"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#17191C"

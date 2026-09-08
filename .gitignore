@@ -1,0 +1,59 @@
+# Local LLM models (수 GB — 커밋 금지)
+models/
+sft_model/
+
+# Python
+__pycache__/
+
+# 생성물 (인덱스·KG·어댑터)
+artifacts/
+data/
+outputs/
+logs/
+results/*.json
+results/*.jsonl
+
+# 체크포인트
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+
+# 대용량 배열
+*.npy
+*.npz
+
+# 환경 변수 (API 키 포함 가능)
+.env
+.env.local
+
+# OS
+.DS_Store
+
+# 로컬 Git 복구 백업 및 배포 압축본
+.git.corrupt-backup-*/
+*.tar.gz
+*.sha256
+
+# Python 가상환경
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# 실행 결과 및 평가 산출물
+tmp/
+results/
+
+# 예선 제출 원본 — 현재 코드와 비교할 때만 로컬에서 사용
+K-DS2026-main/
+
+# GitHub Release에 별도로 올릴 배포파일
+dist/
+
+# 운영하지 않는 백업·실험 코드
+server_ready/
+study.py
+script.txt
+test_streamlit.py
+
+sample_data/

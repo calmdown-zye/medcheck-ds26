@@ -1,0 +1,13 @@
+[project]
+name = "medcheck"
+version = "0.1.0"
+description = "근거 기반 로컬 임상 의사결정 지원 프로토타입"
+requires-python = ">=3.10,<3.13"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
