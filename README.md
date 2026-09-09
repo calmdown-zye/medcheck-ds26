@@ -20,17 +20,29 @@ CPU에서도 실행할 수 있지만 3B 모델 적재에 충분한 메모리가 
 
 ### 1. 설치
 
+#### Clone
 ```bash
 git clone <repository-url> medcheck
 cd medcheck
+```
+
+#### `venv` environment
+```bash
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 cp .env.example .env
 ```
-
 Windows PowerShell의 활성화 명령은 `.venv\Scripts\Activate.ps1`입니다.
+
+#### `conda` environment
+```bash
+conda create -n hack python=3.10
+conda activate hack
+pip install -r requirements.txt
+```
+
 
 ### 2. Qwen2.5-3B-Instruct 다운로드
 
