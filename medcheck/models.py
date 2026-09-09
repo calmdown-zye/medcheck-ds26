@@ -172,6 +172,11 @@ class ClarificationQuestion(BaseModel):
         "yes_no",
         "number",
         "choice",
+        "date",
+        "datetime",
+        "time",
+        "duration",
+        "location",
     ] = "text"
     options: list[str] = Field(default_factory=list)
 

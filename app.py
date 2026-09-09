@@ -911,6 +911,25 @@ st.markdown(
             padding: .95rem 1rem;
         }
     }
+
+    /* Compact entry screen: keep case input above the fold. */
+    .xd-appbar.xd-appbar-compact { padding: 1.1rem 1.4rem; margin-bottom: .8rem; }
+    .xd-appbar-compact .xd-appbar-kicker { margin-bottom: .55rem; font-size: .75rem; }
+    .xd-appbar-compact .xd-appbar-logo { height: 27px; width: auto; padding: 0; border: 0; }
+    .xd-appbar-compact .xd-appbar-title { font-size: 2rem; line-height: 1.15; padding: 0; margin: 0 0 .4rem; }
+    .xd-appbar-compact .xd-appbar-desc { font-size: .92rem; margin: 0; }
+    .xd-appbar-compact .xd-appbar-badges { margin-top: .45rem; }
+    .xd-appbar-compact .xd-badge-research { font-size: .72rem; padding: .12rem .45rem; }
+    .xd-steps { gap: .4rem; margin-bottom: .7rem; }
+    .xd-step { padding: .4rem .65rem; box-shadow: none; }
+    .xd-entry-title { color: var(--xd-navy); font-size: 1.15rem; font-weight: 750; margin: .25rem 0 .2rem; }
+    .xd-entry-note { color: var(--xd-muted); font-size: .88rem; line-height: 1.55; margin-bottom: .5rem; }
+    .xd-example-label { color: var(--xd-muted); font-size: .8rem; margin: .15rem 0 .25rem; }
+    @media (max-width: 768px) {
+        .xd-appbar.xd-appbar-compact { padding: 1rem; }
+        .xd-appbar-compact .xd-appbar-title { font-size: 1.7rem; }
+        .xd-step-label { font-size: .76rem; }
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -1324,7 +1343,7 @@ def render_hero() -> None:
 
     st.markdown(
         f"""
-        <div class="xd-appbar">
+       <div class="xd-appbar">
             <div class="xd-appbar-body">
                 <div class="xd-appbar-kicker">
                     {logo_block}
@@ -1355,92 +1374,101 @@ def render_hero() -> None:
     )
 
 
+def load_example_case(selected_example: str) -> None:
+    """UI callback: populate the existing case field before widgets rerender."""
+    selected_text = EXAMPLE_CASES[selected_example]
+    st.session_state.case_text = selected_text
+    st.session_state.example_selector = selected_example
+    st.session_state._last_example = selected_example
+
+
 def render_input_stage(config: dict[str, Any]) -> None:
-    mode_key = config["mode_key"]
-
-    st.markdown(
-        """
-        <div class="xd-card">
-            <div class="xd-card-title">1단계 · 환자 사례 입력</div>
-            <div class="xd-muted">
-                임상 판단에 필요한 정보만 입력하세요.
-                이름, 연락처, 주민등록번호 등 개인 식별정보는 입력하지 않습니다.
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    col_example, col_mode = st.columns([1.2, 1])
-
-    with col_example:
-        selected_example = st.selectbox(
-            "데모 사례",
-            list(EXAMPLE_CASES.keys()),
-            key="example_selector",
-        )
-
-        if selected_example != "직접 입력":
-            selected_text = EXAMPLE_CASES[selected_example]
-            if st.session_state.get("_last_example") != selected_example:
-                st.session_state.case_text = selected_text
-                st.session_state._last_example = selected_example
-
-    with col_mode:
-        st.markdown("**선택된 분석 구성**")
-        st.write(config["mode_label"])
-        st.caption("분석 모드는 왼쪽 사이드바에서 변경할 수 있습니다.")
-        render_feature_chips(mode_key)
-
-    patient_case = st.text_area(
-        "환자 사례",
-        key="case_text",
-        height=190,
-        placeholder=(
-            "예: 67세 남성이 30분 전부터 압박성 흉통과 "
-            "식은땀을 호소한다..."
-        ),
-        help=(
-            "나이, 성별, 주호소, 발생 시점, 활력징후, 과거력, "
-            "복용약, 검사 결과를 가능한 범위에서 입력하세요."
-        ),
-    )
-
-    with st.expander("입력에 포함하면 좋은 항목"):
+    # A replaceable region removes input controls while synchronous analysis runs.
+    input_slot = st.empty()
+    with input_slot.container():
         st.markdown(
             """
-            <div class="xd-chip-row" style="margin-top:0;">
-                <span class="xd-chip">나이·성별</span>
-                <span class="xd-chip">주호소</span>
-                <span class="xd-chip">발생 시점</span>
-                <span class="xd-chip">활력징후</span>
-                <span class="xd-chip">과거력</span>
-                <span class="xd-chip">복용약</span>
-                <span class="xd-chip">검사 결과</span>
+            <div class="xd-card">
+                <div class="xd-card-title">1단계 · 환자 사례 입력</div>
+                <div class="xd-muted">
+                    증상과 현재 상태를 입력하면
+                    분석 구성에 따라 임상 판단에 필요한 정보를 검토합니다.
+                </div>
             </div>
             """,
             unsafe_allow_html=True,
         )
-        st.caption(
-            "항목이 많을수록 추가 질문이 줄고 근거 연결이 정확해집니다. "
-            "모르는 항목은 비워 두어도 됩니다."
+        st.markdown(
+            '<div class="xd-example-label">예시 불러오기</div>',
+            unsafe_allow_html=True,
+        )
+        col_example = st.columns([1, 1, 1, 3])
+        for col_mode, selected_example in zip(
+            col_example, ("급성 흉통", "급성 복통", "호흡곤란")
+        ):
+            with col_mode:
+                st.button(
+                    selected_example,
+                    key=f"load_example_{selected_example}",
+                    on_click=load_example_case,
+                    args=(selected_example,),
+                    use_container_width=True,
+                )
+
+        patient_case = st.text_area(
+            "환자 사례",
+            key="case_text",
+            height=190,
+            label_visibility="collapsed",
+            placeholder=(
+                "예: 67세 남성이 30분 전부터 압박성 흉통과 "
+                "식은땀을 호소한다..."
+            ),
         )
 
-    st.write("")
+        with st.expander("입력에 포함하면 좋은 항목"):
+                st.markdown(
+                    """
+                    <div class="xd-chip-row" style="margin-top:0;">
+                        <span class="xd-chip">나이·성별</span>
+                        <span class="xd-chip">주호소</span>
+                        <span class="xd-chip">발생 시점</span>
+                        <span class="xd-chip">활력징후</span>
+                        <span class="xd-chip">과거력</span>
+                        <span class="xd-chip">복용약</span>
+                        <span class="xd-chip">검사 결과</span>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+                st.caption(
+                    "항목이 많을수록 추가 질문이 줄고 근거 연결이 정확해집니다. "
+                    "모르는 항목은 비워 두어도 됩니다."
+                )
 
-    if st.button(
-        "분석 시작",
-        type="primary",
-        use_container_width=True,
-    ):
+        start_analysis = st.button(
+            "분석 시작",
+            type="primary",
+            use_container_width=True,
+        )
+
+    if start_analysis:
         if len(patient_case.strip()) < 10:
             st.error("환자 사례를 10자 이상 입력하세요.")
             return
 
+        input_slot.empty()
+        with input_slot.container():
+            st.info("분석 중입니다. 결과가 나올 때까지 기다려 주세요.")
         execute_initial_analysis(
             patient_case=patient_case.strip(),
             config=config,
         )
+        # The execution function returns here only after a handled error.
+        input_slot.empty()
+        render_stage_indicator()
+        if st.button("입력 화면으로 돌아가기", key="retry_input"):
+            st.rerun()
 
 
 # ============================================================

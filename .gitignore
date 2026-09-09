@@ -1,6 +1,7 @@
 # Local LLM models (수 GB — 커밋 금지)
 models/
 sft_model/
+data/
 
 # Python
 __pycache__/
